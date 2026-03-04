@@ -1,7 +1,7 @@
 # Lightweight Python image for the AgentMesh example server and agent sidecars.
 # In production, use the root-level Dockerfile.server and Dockerfile.sidecar instead.
 
-FROM python:3.11-slim
+FROM python:3.11-slim@sha256:4057d02a202f69bfbfe10f65300519f612eb00fc595b8499f77d3cfe5b1b9fd4
 
 RUN apt-get update && apt-get install -y --no-install-recommends curl \
     && rm -rf /var/lib/apt/lists/*
