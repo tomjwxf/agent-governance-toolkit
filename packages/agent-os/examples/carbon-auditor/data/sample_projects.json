@@ -1,0 +1,111 @@
+{
+  "projects": [
+    {
+      "project_id": "VCS-1234",
+      "name": "Amazon Rainforest Protection Initiative",
+      "location": {
+        "country": "Brazil",
+        "region": "Amazonas",
+        "coordinates": {
+          "lat": -3.4653,
+          "lon": -62.2159
+        },
+        "polygon": [
+          [-62.25, -3.45],
+          [-62.18, -3.45],
+          [-62.18, -3.48],
+          [-62.25, -3.48]
+        ]
+      },
+      "claimed_data": {
+        "year": 2024,
+        "ndvi": 0.82,
+        "carbon_stock_tonnes_per_ha": 180,
+        "area_hectares": 5000,
+        "methodology": "VM0042"
+      },
+      "actual_data": {
+        "ndvi": 0.45,
+        "carbon_stock_tonnes_per_ha": 65,
+        "deforestation_detected": true,
+        "deforestation_percentage": 0.35
+      },
+      "expected_result": "FRAUD"
+    },
+    {
+      "project_id": "VCS-5678",
+      "name": "Congo Basin Conservation Project",
+      "location": {
+        "country": "DRC",
+        "region": "Équateur",
+        "coordinates": {
+          "lat": 0.4162,
+          "lon": 18.4347
+        },
+        "polygon": [
+          [18.40, 0.40],
+          [18.48, 0.40],
+          [18.48, 0.44],
+          [18.40, 0.44]
+        ]
+      },
+      "claimed_data": {
+        "year": 2024,
+        "ndvi": 0.78,
+        "carbon_stock_tonnes_per_ha": 165,
+        "area_hectares": 8000,
+        "methodology": "VM0042"
+      },
+      "actual_data": {
+        "ndvi": 0.76,
+        "carbon_stock_tonnes_per_ha": 160,
+        "deforestation_detected": false,
+        "deforestation_percentage": 0.02
+      },
+      "expected_result": "VERIFIED"
+    },
+    {
+      "project_id": "VCS-9012",
+      "name": "Indonesian Peatland Restoration",
+      "location": {
+        "country": "Indonesia",
+        "region": "Kalimantan",
+        "coordinates": {
+          "lat": -2.2137,
+          "lon": 113.9108
+        },
+        "polygon": [
+          [113.85, -2.18],
+          [113.98, -2.18],
+          [113.98, -2.25],
+          [113.85, -2.25]
+        ]
+      },
+      "claimed_data": {
+        "year": 2024,
+        "ndvi": 0.65,
+        "carbon_stock_tonnes_per_ha": 420,
+        "area_hectares": 3000,
+        "methodology": "VM0007"
+      },
+      "actual_data": {
+        "ndvi": 0.58,
+        "carbon_stock_tonnes_per_ha": 380,
+        "deforestation_detected": false,
+        "deforestation_percentage": 0.08
+      },
+      "expected_result": "FLAGGED"
+    }
+  ],
+  "metadata": {
+    "data_source": "Sentinel-2 Copernicus",
+    "resolution": "10m",
+    "collection_date": "2024-12-15",
+    "methodology_standards": ["Verra VM0042", "Verra VM0007", "Gold Standard"],
+    "verification_thresholds": {
+      "verified": 0.10,
+      "flagged": 0.15,
+      "fraud": 0.20
+    }
+  }
+}

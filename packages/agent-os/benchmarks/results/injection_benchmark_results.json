@@ -1,0 +1,177 @@
+{
+  "overall": {
+    "strict": {
+      "tpr": 0.95,
+      "fpr": 0.0,
+      "precision": 1.0,
+      "recall": 0.95,
+      "f1": 0.9743589743589743,
+      "tp": 57,
+      "fp": 0,
+      "tn": 40,
+      "fn": 3
+    },
+    "balanced": {
+      "tpr": 0.95,
+      "fpr": 0.0,
+      "precision": 1.0,
+      "recall": 0.95,
+      "f1": 0.9743589743589743,
+      "tp": 57,
+      "fp": 0,
+      "tn": 40,
+      "fn": 3
+    },
+    "permissive": {
+      "tpr": 0.7,
+      "fpr": 0.0,
+      "precision": 1.0,
+      "recall": 0.7,
+      "f1": 0.8235294117647058,
+      "tp": 42,
+      "fp": 0,
+      "tn": 40,
+      "fn": 18
+    }
+  },
+  "by_category": {
+    "strict": {
+      "direct_injection": {
+        "tpr": 0.9,
+        "fpr": 0.0,
+        "precision": 1.0,
+        "recall": 0.9,
+        "f1": 0.9473684210526316,
+        "tp": 18,
+        "fp": 0,
+        "tn": 0,
+        "fn": 2
+      },
+      "indirect_injection": {
+        "tpr": 0.95,
+        "fpr": 0.0,
+        "precision": 1.0,
+        "recall": 0.95,
+        "f1": 0.9743589743589743,
+        "tp": 19,
+        "fp": 0,
+        "tn": 0,
+        "fn": 1
+      },
+      "jailbreak": {
+        "tpr": 1.0,
+        "fpr": 0.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 20,
+        "fp": 0,
+        "tn": 0,
+        "fn": 0
+      },
+      "benign": {
+        "tpr": 0.0,
+        "fpr": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "tp": 0,
+        "fp": 0,
+        "tn": 40,
+        "fn": 0
+      }
+    },
+    "balanced": {
+      "direct_injection": {
+        "tpr": 0.9,
+        "fpr": 0.0,
+        "precision": 1.0,
+        "recall": 0.9,
+        "f1": 0.9473684210526316,
+        "tp": 18,
+        "fp": 0,
+        "tn": 0,
+        "fn": 2
+      },
+      "indirect_injection": {
+        "tpr": 0.95,
+        "fpr": 0.0,
+        "precision": 1.0,
+        "recall": 0.95,
+        "f1": 0.9743589743589743,
+        "tp": 19,
+        "fp": 0,
+        "tn": 0,
+        "fn": 1
+      },
+      "jailbreak": {
+        "tpr": 1.0,
+        "fpr": 0.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 20,
+        "fp": 0,
+        "tn": 0,
+        "fn": 0
+      },
+      "benign": {
+        "tpr": 0.0,
+        "fpr": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "tp": 0,
+        "fp": 0,
+        "tn": 40,
+        "fn": 0
+      }
+    },
+    "permissive": {
+      "direct_injection": {
+        "tpr": 0.9,
+        "fpr": 0.0,
+        "precision": 1.0,
+        "recall": 0.9,
+        "f1": 0.9473684210526316,
+        "tp": 18,
+        "fp": 0,
+        "tn": 0,
+        "fn": 2
+      },
+      "indirect_injection": {
+        "tpr": 0.45,
+        "fpr": 0.0,
+        "precision": 1.0,
+        "recall": 0.45,
+        "f1": 0.6206896551724138,
+        "tp": 9,
+        "fp": 0,
+        "tn": 0,
+        "fn": 11
+      },
+      "jailbreak": {
+        "tpr": 0.75,
+        "fpr": 0.0,
+        "precision": 1.0,
+        "recall": 0.75,
+        "f1": 0.8571428571428571,
+        "tp": 15,
+        "fp": 0,
+        "tn": 0,
+        "fn": 5
+      },
+      "benign": {
+        "tpr": 0.0,
+        "fpr": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "tp": 0,
+        "fp": 0,
+        "tn": 40,
+        "fn": 0
+      }
+    }
+  }
+}

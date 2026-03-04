@@ -1,0 +1,32 @@
+NOTICES
+
+This project incorporates material from the projects listed below.
+
+---
+
+opentelemetry-python (https://github.com/open-telemetry/opentelemetry-python)
+Licensed under the Apache License, Version 2.0
+
+opentelemetry-python-contrib (https://github.com/open-telemetry/opentelemetry-python-contrib)
+Licensed under the Apache License, Version 2.0
+
+cryptography (https://github.com/pyca/cryptography)
+Licensed under the Apache License, Version 2.0 / BSD 3-Clause
+
+pydantic (https://github.com/pydantic/pydantic)
+Licensed under the MIT License
+
+fastapi (https://github.com/tiangolo/fastapi)
+Licensed under the MIT License
+
+PyYAML (https://github.com/yaml/pyyaml)
+Licensed under the MIT License
+
+rich (https://github.com/Textualize/rich)
+Licensed under the MIT License
+
+httpx (https://github.com/encode/httpx)
+Licensed under the BSD 3-Clause License
+
+mcp (https://github.com/modelcontextprotocol/python-sdk)
+Licensed under the MIT License

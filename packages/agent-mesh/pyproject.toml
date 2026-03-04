@@ -1,0 +1,163 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agentmesh-platform"
+version = "2.0.1"
+description = "Community Edition — The Secure Nervous System for Cloud-Native Agent Ecosystems - Identity, Trust, Reward, Governance"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Imran Siddique", email = "agt@microsoft.com"}
+]
+keywords = [
+    "ai",
+    "agents",
+    "security",
+    "governance",
+    "identity",
+    "trust",
+    "a2a",
+    "mcp",
+    "iatp",
+    "zero-trust",
+    "compliance",
+    "soc2",
+    "hipaa",
+    "eu-ai-act",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+    "Topic :: Security :: Cryptography",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Systems Administration :: Authentication/Directory",
+]
+requires-python = ">=3.11"
+dependencies = [
+    # Core dependencies
+    "pydantic[email]>=2.5.0",
+    "cryptography>=42.0.0",
+    "pynacl>=1.5.0",
+    "httpx>=0.26.0",
+    "aiohttp>=3.9.0",
+    "pyyaml>=6.0",
+    "structlog>=24.1.0",
+    "click>=8.1.0",
+    "rich>=13.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.1.0",
+    "hypothesis>=6.100.0",
+    "black>=24.1.0",
+    "ruff>=0.1.0",
+    "mypy>=1.8.0",
+    "fakeredis>=2.21.0",
+]
+redis = [
+    "redis>=4.0",
+]
+server = [
+    "fastapi>=0.109.0",
+    "uvicorn[standard]>=0.27.0",
+]
+storage = [
+    "redis[asyncio]>=5.0.0",
+    "sqlalchemy[asyncio]>=2.0.0",
+    "asyncpg>=0.29.0",
+]
+observability = [
+    "opentelemetry-api>=1.20.0",
+    "opentelemetry-sdk>=1.20.0",
+    "opentelemetry-instrumentation-fastapi>=0.41b0",
+    "opentelemetry-exporter-otlp>=1.20.0",
+    "prometheus-client>=0.19.0",
+]
+langchain = [
+    "langchain-core>=0.1.0",
+]
+django = [
+    "django>=3.2",
+]
+websocket = [
+    "websockets>=12.0",
+]
+grpc = [
+    "grpcio>=1.60.0",
+    "grpcio-tools>=1.60.0",
+]
+agent-os = [
+    "agent-os-kernel[nexus,iatp]>=1.2.0",
+]
+all = [
+    "fastapi>=0.109.0",
+    "uvicorn[standard]>=0.27.0",
+    "redis[asyncio]>=5.0.0",
+    "sqlalchemy[asyncio]>=2.0.0",
+    "asyncpg>=0.29.0",
+    "opentelemetry-api>=1.20.0",
+    "opentelemetry-sdk>=1.20.0",
+    "opentelemetry-instrumentation-fastapi>=0.41b0",
+    "opentelemetry-exporter-otlp>=1.20.0",
+    "prometheus-client>=0.19.0",
+]
+
+[project.scripts]
+agentmesh = "agentmesh.cli.main:main"
+
+[project.urls]
+Homepage = "https://github.com/microsoft/agent-governance-toolkit"
+Documentation = "https://github.com/microsoft/agent-governance-toolkit#readme"
+Repository = "https://github.com/microsoft/agent-governance-toolkit"
+Issues = "https://github.com/microsoft/agent-governance-toolkit/issues"
+Changelog = "https://github.com/microsoft/agent-governance-toolkit/blob/master/CHANGELOG.md"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agentmesh"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/tests",
+    "/docs",
+    "/README.md",
+    "/LICENSE",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+markers = [
+    "fuzz: fuzzing tests with malformed inputs",
+    "benchmark: crypto operation benchmarks",
+    "slow: long-running load tests (skip with -m 'not slow')",
+]

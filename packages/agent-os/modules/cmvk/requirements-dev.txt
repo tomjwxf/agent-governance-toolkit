@@ -1,0 +1,19 @@
+# CMVK Development Dependencies
+# Layer 1: The Primitive
+# Install with: pip install -r requirements-dev.txt
+
+# Core dependencies
+numpy>=1.24.0
+scipy>=1.11.0
+
+# Testing
+pytest>=8.3.0
+pytest-cov>=6.0.0
+
+# Code Quality
+black>=24.10.0
+ruff>=0.9.0
+mypy>=1.14.0
+
+# Type stubs
+types-PyYAML>=6.0.0

@@ -1,0 +1,33 @@
+# Grafana Datasources Provisioning
+# Automatically configures Prometheus and Jaeger
+
+apiVersion: 1
+
+datasources:
+  # Prometheus - Metrics
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false
+    jsonData:
+      httpMethod: POST
+      manageAlerts: true
+      prometheusType: Prometheus
+      prometheusVersion: ">=2.48.0"
+
+  # Jaeger - Tracing
+  - name: Jaeger
+    type: jaeger
+    access: proxy
+    url: http://jaeger:16686
+    editable: false
+    jsonData:
+      tracesToLogsV2:
+        datasourceUid: ''
+      tracesToMetrics:
+        datasourceUid: 'Prometheus'
+        tags:
+          - key: service.name
+            value: service_name

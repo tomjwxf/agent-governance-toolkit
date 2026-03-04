@@ -1,0 +1,15 @@
+# Grafana Dashboard Provisioning
+# Automatically loads Agent OS dashboards
+
+apiVersion: 1
+
+providers:
+  - name: 'Agent OS Dashboards'
+    orgId: 1
+    folder: 'Agent OS'
+    type: file
+    disableDeletion: false
+    editable: true
+    updateIntervalSeconds: 30
+    options:
+      path: /var/lib/grafana/dashboards

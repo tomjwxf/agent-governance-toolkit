@@ -1,0 +1,15 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "agent-os-performance",
+    "title": "Agent OS - Performance",
+    "tags": [
+      "agent-os",
+      "performance"
+    ],
+    "timezone": "browser",
+    "schemaVersion": 38,
+    "version": 1,
+    "panels": []
+  }
+}

@@ -1,0 +1,18 @@
+apiVersion: v2
+name: agentmesh
+description: Trust, identity, and governance infrastructure for AI agent ecosystems
+type: application
+version: 0.3.0
+appVersion: "0.3.0"
+keywords:
+  - ai-agents
+  - trust
+  - governance
+  - security
+  - zero-trust
+home: https://github.com/imran-siddique/agent-mesh
+maintainers:
+  - name: Imran Siddique
+    email: imran.siddique@microsoft.com
+sources:
+  - https://github.com/imran-siddique/agent-mesh

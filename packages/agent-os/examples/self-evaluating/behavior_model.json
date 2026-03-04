@@ -1,0 +1,40 @@
+{
+  "patterns": {
+    "expense_filing_001": {
+      "pattern_id": "expense_filing_001",
+      "name": "Weekly Expense Filing",
+      "description": "User files expenses every Friday afternoon",
+      "trigger": "open_expense_form",
+      "steps": [
+        "Open expense report form",
+        "Attach receipt image",
+        "Fill in amount and category",
+        "Add business justification",
+        "Submit for approval"
+      ],
+      "frequency": 4,
+      "last_seen": "2024-01-12T16:30:00",
+      "confidence": 0.8500000000000001,
+      "metadata": {
+        "user_id": "user123"
+      }
+    },
+    "pattern_1": {
+      "pattern_id": "pattern_1",
+      "name": "Workflow: open_pull_request",
+      "description": "User workflow starting with open_pull_request",
+      "trigger": "open_pull_request",
+      "steps": [
+        "open_pull_request",
+        "review_changes",
+        "add_comments"
+      ],
+      "frequency": 1,
+      "last_seen": "2026-01-01T01:44:38.478227",
+      "confidence": 0.5,
+      "metadata": {
+        "user_id": "user456"
+      }
+    }
+  }
+}

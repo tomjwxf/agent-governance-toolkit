@@ -1,0 +1,11 @@
+# Example Agent OS configuration file
+# Load with: AgentConfig.from_file("examples/agent_config.yaml")
+
+agent_id: my-example-agent
+policies:
+  - read_only
+  - no_pii
+metadata:
+  environment: development
+  owner: team-platform
+  version: "1.0"

@@ -1,0 +1,85 @@
+[
+  {
+    "agent_id": "soc2-ap-agent",
+    "tool": "transfer",
+    "role": "accounts_payable",
+    "call_count": 1,
+    "event_type": "ALLOWED",
+    "decision": "allowed",
+    "timestamp": "2026-03-01T10:59:34.901929"
+  },
+  {
+    "agent_id": "soc2-ap-agent",
+    "event_type": "TRANSACTION",
+    "tool": "transfer",
+    "role": "accounts_payable",
+    "amount": 500.0,
+    "recipient": "Vendor ABC",
+    "decision": "approved",
+    "timestamp": "2026-03-01T10:59:34.901956"
+  },
+  {
+    "agent_id": "soc2-fm-agent",
+    "tool": "transfer",
+    "role": "finance_manager",
+    "call_count": 1,
+    "event_type": "ALLOWED",
+    "decision": "allowed",
+    "timestamp": "2026-03-01T10:59:34.902019"
+  },
+  {
+    "agent_id": "soc2-fm-agent",
+    "event_type": "TRANSACTION",
+    "tool": "transfer",
+    "role": "finance_manager",
+    "amount": 25000.0,
+    "recipient": "Vendor XYZ",
+    "decision": "pending_approval",
+    "timestamp": "2026-03-01T10:59:34.902040"
+  },
+  {
+    "agent_id": "soc2-ap-agent",
+    "tool": "transfer",
+    "role": "accounts_payable",
+    "reason": "Blocked pattern detected: SanctionedCorp",
+    "event_type": "BLOCKED",
+    "decision": "blocked",
+    "timestamp": "2026-03-01T10:59:34.902134"
+  },
+  {
+    "agent_id": "soc2-burst-test",
+    "tool": "transfer",
+    "role": "accounts_payable",
+    "call_count": 1,
+    "event_type": "ALLOWED",
+    "decision": "allowed",
+    "timestamp": "2026-03-01T10:59:34.902327"
+  },
+  {
+    "agent_id": "soc2-burst-test",
+    "tool": "transfer",
+    "role": "accounts_payable",
+    "reason": "Rate limit exceeded (10 transfers/session)",
+    "event_type": "BLOCKED",
+    "decision": "blocked",
+    "timestamp": "2026-03-01T10:59:34.902374"
+  },
+  {
+    "agent_id": "soc2-ap-agent",
+    "tool": "query_balance",
+    "role": "accounts_payable",
+    "call_count": 2,
+    "event_type": "ALLOWED",
+    "decision": "allowed",
+    "timestamp": "2026-03-01T10:59:34.902414"
+  },
+  {
+    "agent_id": "soc2-ap-agent",
+    "tool": "approve",
+    "role": "accounts_payable",
+    "reason": "Tool 'approve' not permitted for role 'accounts_payable'",
+    "event_type": "BLOCKED",
+    "decision": "blocked",
+    "timestamp": "2026-03-01T10:59:34.902457"
+  }
+]

@@ -1,0 +1,50 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "agent-os-safety",
+    "title": "Agent OS - Safety Metrics",
+    "tags": [
+      "agent-os",
+      "ai-safety",
+      "compliance"
+    ],
+    "timezone": "browser",
+    "schemaVersion": 38,
+    "version": 1,
+    "panels": [
+      {
+        "id": 1,
+        "type": "stat",
+        "title": "30-Day Violation Count",
+        "gridPos": {
+          "h": 6,
+          "w": 8,
+          "x": 0,
+          "y": 0
+        },
+        "targets": [
+          {
+            "expr": "increase(agent_os_violations_total[30d])",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 1
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

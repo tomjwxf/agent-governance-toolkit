@@ -1,0 +1,81 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv
+
+# Environment variables
+.env
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Telemetry and checkpoints
+telemetry_events.jsonl
+fullstack_telemetry.jsonl
+monitoring_telemetry.jsonl
+observer_checkpoint.json
+
+# Wisdom Curator files
+curator_review_queue.json
+design_proposals.json
+
+# Prioritization databases
+safety_corrections.json
+user_preferences.json
+
+# Model upgrade tracking
+model_upgrade_log.json
+
+# Ghost Mode / Context Shadow - Keep example, ignore runtime versions
+# behavior_model.json  # Keep the example in repo
+
+# Agent metadata manifests (generated at runtime)
+agent_manifest.json
+
+# Circuit breaker configs (generated at runtime)
+cb_config.json
+
+# Temporary test files
+/tmp/
+*.tmp
+test_*.json
+!tests/
+
+# Sample output files
+sample_output/

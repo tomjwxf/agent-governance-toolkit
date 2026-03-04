@@ -1,0 +1,116 @@
+# AlertManager Configuration for Agent OS
+#
+# Configure notification channels (Slack, PagerDuty, email, etc.)
+# 
+# Documentation: https://prometheus.io/docs/alerting/latest/configuration/
+
+global:
+  # How long to wait before sending a notification
+  resolve_timeout: 5m
+  
+  # SMTP configuration (for email alerts)
+  # smtp_smarthost: 'smtp.example.com:587'
+  # smtp_from: 'alertmanager@example.com'
+  # smtp_auth_username: 'alertmanager'
+  # smtp_auth_password: 'password'
+  
+  # Slack configuration
+  # slack_api_url: 'https://hooks.slack.com/services/YOUR/WEBHOOK/URL'
+
+# Notification templates
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+# Route tree
+route:
+  # Default receiver
+  receiver: 'default-receiver'
+  
+  # Group alerts by these labels
+  group_by: ['alertname', 'team', 'severity']
+  
+  # How long to wait before sending first notification
+  group_wait: 30s
+  
+  # How long to wait before sending subsequent notifications
+  group_interval: 5m
+  
+  # How long to wait before resending
+  repeat_interval: 4h
+  
+  # Child routes
+  routes:
+    # Critical alerts - page immediately
+    - match:
+        severity: critical
+      receiver: 'critical-receiver'
+      group_wait: 10s
+      repeat_interval: 1h
+      
+    # AI Safety team alerts
+    - match:
+        team: ai-safety
+      receiver: 'ai-safety-team'
+      
+    # ML Ops team alerts (CMVK)
+    - match:
+        team: ml-ops
+      receiver: 'ml-ops-team'
+      
+    # Platform team alerts
+    - match:
+        team: platform
+      receiver: 'platform-team'
+
+# Notification receivers
+receivers:
+  # Default receiver (log only in dev)
+  - name: 'default-receiver'
+    webhook_configs:
+      - url: 'http://localhost:9999/webhook'
+        send_resolved: true
+
+  # Critical alerts - example Slack configuration
+  - name: 'critical-receiver'
+    # Uncomment and configure for production:
+    # slack_configs:
+    #   - channel: '#agent-os-critical'
+    #     title: '{{ .Status | toUpper }} - Agent OS Alert'
+    #     text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+    #     send_resolved: true
+    webhook_configs:
+      - url: 'http://localhost:9999/webhook'
+        send_resolved: true
+
+  # AI Safety team
+  - name: 'ai-safety-team'
+    # slack_configs:
+    #   - channel: '#ai-safety-alerts'
+    webhook_configs:
+      - url: 'http://localhost:9999/webhook'
+        send_resolved: true
+
+  # ML Ops team
+  - name: 'ml-ops-team'
+    # slack_configs:
+    #   - channel: '#ml-ops-alerts'
+    webhook_configs:
+      - url: 'http://localhost:9999/webhook'
+        send_resolved: true
+
+  # Platform team
+  - name: 'platform-team'
+    # pagerduty_configs:
+    #   - service_key: 'YOUR_PAGERDUTY_KEY'
+    webhook_configs:
+      - url: 'http://localhost:9999/webhook'
+        send_resolved: true
+
+# Inhibition rules
+# Suppress less severe alerts when critical alerts fire
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'team']
