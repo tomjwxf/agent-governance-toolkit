@@ -49,7 +49,7 @@ Sub-millisecond policy enforcement (<0.1ms p99), 1,680+ tests, integrations with
 ### ASI05 — Unexpected Code Execution
 
 - **ExecutionSandbox**: AST-based security visitor blocks dangerous patterns
-  - Blocked modules: subprocess, os, shutil, socket, ctypes
+  - Blocked modules: subprocess, os, shutil, socket, ctypes, importlib
   - Blocked builtins: exec, eval, compile, \_\_import\_\_
 - **SandboxConfig**: Configurable max_memory_mb, max_cpu_seconds, allowed_paths
 - **SemanticPolicyEngine**: CODE_EXECUTION intent detection with deny policies

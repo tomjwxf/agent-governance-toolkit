@@ -240,7 +240,7 @@ The `ExecutionSandbox` (`sandbox.py`) provides multi-layered protection:
 
 1. **AST static analysis** — `_ASTSecurityVisitor` scans generated code for
    calls to blocked builtins (`eval`, `exec`, `compile`, `__import__`) and
-   imports of dangerous modules (`subprocess`, `os`, `shutil`, `socket`, `ctypes`).
+   imports of dangerous modules (`subprocess`, `os`, `shutil`, `socket`, `ctypes`, `importlib`).
 2. **Import hooks** — `SandboxImportHook` intercepts `import` statements at
    runtime and blocks access to dangerous modules.
 3. **Pattern matching** — `GovernancePolicy.blocked_patterns` catches code
