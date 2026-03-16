@@ -30,7 +30,7 @@ import logging
 import shutil
 import subprocess
 import tempfile
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Literal, Optional, Protocol, runtime_checkable
