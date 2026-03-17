@@ -1,5 +1,5 @@
 {
-  "name": "@agentmesh/api",
+  "name": "@microsoft/agentmesh-api",
   "version": "0.1.0",
   "description": "AgentMesh Public API for trust verification and agent registration",
   "main": "dist/index.js",
@@ -7,8 +7,17 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
-    "test": "ts-node tests/api.test.ts"
+    "test": "ts-node tests/api.test.ts",
+    "prepublishOnly": "npm run build"
   },
+  "author": "Microsoft Corporation",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/microsoft/agent-governance-toolkit.git",
+    "directory": "packages/agent-mesh/services/api"
+  },
+  "homepage": "https://github.com/microsoft/agent-governance-toolkit/tree/main/packages/agent-mesh/services/api",
   "dependencies": {
     "express": "^4.18.2",
     "uuid": "^9.0.0"
@@ -22,6 +31,5 @@
   },
   "engines": {
     "node": ">=18.0.0"
-  },
-  "license": "Apache-2.0"
+  }
 }

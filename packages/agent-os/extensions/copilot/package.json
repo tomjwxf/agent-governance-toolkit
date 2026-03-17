@@ -1,5 +1,5 @@
 {
-  "name": "@agent-os/copilot-extension",
+  "name": "@microsoft/agent-os-copilot-extension",
   "version": "1.0.0",
   "description": "AgentOS GitHub Copilot Extension - Build safe AI agents with natural language and 0% policy violations",
   "main": "dist/index.js",
@@ -23,7 +23,7 @@
     "hipaa",
     "soc2"
   ],
-  "author": "Agent OS Team",
+  "author": "Microsoft Corporation",
   "license": "MIT",
   "engines": {
     "node": ">=18.0.0"

@@ -1,5 +1,5 @@
 {
-  "name": "@agentmesh/mastra",
+  "name": "@microsoft/agentmesh-mastra",
   "version": "0.1.0",
   "description": "Governance, trust verification, and audit middleware for Mastra AI agents",
   "main": "dist/index.js",
@@ -23,14 +23,14 @@
     "middleware",
     "security"
   ],
-  "author": "Imran Siddique <imran@agentmesh.dev>",
+  "author": "Microsoft Corporation",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/imran-siddique/agentmesh-integrations.git",
-    "directory": "mastra-agentmesh"
+    "url": "https://github.com/microsoft/agent-governance-toolkit.git",
+    "directory": "packages/agentmesh-integrations/mastra-agentmesh"
   },
-  "homepage": "https://github.com/imran-siddique/agentmesh-integrations/tree/main/mastra-agentmesh",
+  "homepage": "https://github.com/microsoft/agent-governance-toolkit/tree/main/packages/agentmesh-integrations/mastra-agentmesh",
   "peerDependencies": {
     "@mastra/core": ">=0.10.0",
     "zod": ">=3.22.0"

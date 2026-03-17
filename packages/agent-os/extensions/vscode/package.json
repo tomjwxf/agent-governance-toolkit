@@ -1,9 +1,11 @@
 {
-  "name": "agent-os-vscode",
+  "name": "@microsoft/agent-os-vscode",
   "displayName": "Agent OS - AI Safety for Code",
   "description": "Kernel-level safety for AI coding assistants. Block destructive operations, verify with multi-model review, and audit all AI suggestions.",
   "version": "1.0.1",
   "publisher": "agent-os",
+  "author": "Microsoft Corporation",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/microsoft/agent-governance-toolkit"

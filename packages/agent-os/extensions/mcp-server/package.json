@@ -1,5 +1,5 @@
 {
-  "name": "agentos-mcp-server",
+  "name": "@microsoft/agentos-mcp-server",
   "version": "1.0.1",
   "description": "AgentOS MCP Server for Claude Desktop - Build, deploy, and manage policy-compliant autonomous agents",
   "main": "dist/index.js",
@@ -29,7 +29,7 @@
     "autonomous-agents",
     "anthropic"
   ],
-  "author": "AgentOS Team",
+  "author": "Microsoft Corporation",
   "license": "MIT",
   "repository": {
     "type": "git",

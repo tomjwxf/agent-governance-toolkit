@@ -1,5 +1,5 @@
 {
-  "name": "agentmesh-mcp-proxy",
+  "name": "@microsoft/agentmesh-mcp-proxy",
   "version": "1.0.0",
   "description": "Security proxy for MCP servers - The Firewall for Model Context Protocol",
   "keywords": [
@@ -12,14 +12,14 @@
     "firewall",
     "policy-engine"
   ],
-  "author": "Imran Siddique <agt@microsoft.com>",
-  "license": "Apache-2.0",
+  "author": "Microsoft Corporation",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/microsoft/agent-governance-toolkit.git",
-    "directory": "packages/mcp-proxy"
+    "directory": "packages/agent-mesh/packages/mcp-proxy"
   },
-  "homepage": "https://github.com/microsoft/agent-governance-toolkit/tree/main/packages/mcp-proxy",
+  "homepage": "https://github.com/microsoft/agent-governance-toolkit/tree/main/packages/agent-mesh/packages/mcp-proxy",
   "bugs": {
     "url": "https://github.com/microsoft/agent-governance-toolkit/issues"
   },

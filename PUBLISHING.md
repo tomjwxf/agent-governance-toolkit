@@ -61,6 +61,57 @@ All packages must include:
 For packages with native extensions targeting Linux, use `manylinux` tags
 (e.g., `manylinux2014_x86_64`), **not** `linux_x86_64`.
 
+## npm Packages
+
+### Published Packages
+
+All npm packages use the `@microsoft` scope.
+
+| Package | npm Name | Directory |
+|---------|----------|-----------|
+| AgentMesh Copilot Governance | `@microsoft/agentmesh-copilot-governance` | `packages/agentmesh-integrations/copilot-governance` |
+| AgentMesh Mastra | `@microsoft/agentmesh-mastra` | `packages/agentmesh-integrations/mastra-agentmesh` |
+| AgentMesh API | `@microsoft/agentmesh-api` | `packages/agent-mesh/services/api` |
+| AgentMesh MCP Proxy | `@microsoft/agentmesh-mcp-proxy` | `packages/agent-mesh/packages/mcp-proxy` |
+| AgentMesh SDK | `@microsoft/agentmesh-sdk` | `packages/agent-mesh/sdks/typescript` |
+| Agent OS Copilot Extension | `@microsoft/agent-os-copilot-extension` | `packages/agent-os/extensions/copilot` |
+| AgentOS MCP Server | `@microsoft/agentos-mcp-server` | `packages/agent-os/extensions/mcp-server` |
+
+The VS Code and Cursor extensions are published via their respective marketplaces,
+not npm.
+
+### Publishing Method
+
+All npm packages are published via **ESRP Release** using an Azure DevOps
+pipeline (`pipelines/npm-publish.yml`).
+
+> **⚠️ GitHub Actions is not used for npm publishing.**
+> The GitHub Actions workflow builds and packs `.tgz` files but does **not**
+> publish them. Actual publishing goes through the ADO pipeline.
+
+### Building & Packing
+
+```bash
+cd packages/agent-mesh/sdks/typescript
+npm ci
+npm run build
+npm pack
+```
+
+### Package Metadata Requirements
+
+All packages must include:
+- **Scope**: `@microsoft` (ESRP reserved scope)
+- **Author**: `Microsoft Corporation`
+- **License**: `MIT`
+- **Repository**: pointing to `microsoft/agent-governance-toolkit`
+- **`private`**: must **not** be set to `true`
+
+### Naming Conventions
+
+- Use the `@microsoft` scope for all publishable packages
+- Avoid "shipping the org chart" — scope should reflect product, not team structure
+
 ## .NET Packages (NuGet)
 
 The .NET SDK (`packages/agent-governance-dotnet`) is published to NuGet with

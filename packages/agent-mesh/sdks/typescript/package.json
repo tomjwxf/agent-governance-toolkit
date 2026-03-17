@@ -1,5 +1,5 @@
 {
-  "name": "@agentmesh/sdk",
+  "name": "@microsoft/agentmesh-sdk",
   "version": "1.0.0",
   "description": "TypeScript SDK for AgentMesh \u2014 agent identity, trust scoring, policy evaluation, and audit logging",
   "main": "dist/index.js",
@@ -23,7 +23,7 @@
     "policy",
     "audit"
   ],
-  "author": "AgentMesh Contributors",
+  "author": "Microsoft Corporation",
   "license": "MIT",
   "repository": {
     "type": "git",

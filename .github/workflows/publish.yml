@@ -88,6 +88,70 @@ jobs:
           path: packages/${{ matrix.package }}/dist/
           retention-days: 30
 
+  # -------------------------------------------------------------------
+  # Build npm packages, pack .tgz, and upload artifacts.
+  #
+  # IMPORTANT: Actual npm publishing is done via the ADO pipeline
+  # (pipelines/npm-publish.yml) using ESRP Release. GitHub Actions
+  # is NOT compliant for Microsoft npm publishing.
+  # See: PUBLISHING.md
+  # -------------------------------------------------------------------
+  build-npm:
+    if: ${{ github.event_name == 'release' || github.event.inputs.package == 'all' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: agentmesh-copilot-governance
+            path: packages/agentmesh-integrations/copilot-governance
+          - name: agentmesh-mastra
+            path: packages/agentmesh-integrations/mastra-agentmesh
+          - name: agentmesh-api
+            path: packages/agent-mesh/services/api
+          - name: agentmesh-mcp-proxy
+            path: packages/agent-mesh/packages/mcp-proxy
+          - name: agentmesh-sdk
+            path: packages/agent-mesh/sdks/typescript
+          - name: agent-os-copilot-extension
+            path: packages/agent-os/extensions/copilot
+          - name: agentos-mcp-server
+            path: packages/agent-os/extensions/mcp-server
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        working-directory: ${{ matrix.path }}
+        run: npm ci --ignore-scripts 2>/dev/null || npm install
+
+      - name: Build ${{ matrix.name }}
+        working-directory: ${{ matrix.path }}
+        run: npm run build
+
+      - name: Pack ${{ matrix.name }}
+        working-directory: ${{ matrix.path }}
+        run: |
+          mkdir -p tgz-output
+          npm pack --pack-destination tgz-output
+          echo "=== Packed ==="
+          ls -la tgz-output/
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2
+        with:
+          subject-path: ${{ matrix.path }}/tgz-output/*.tgz
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@ea165f8d65b6db9a6b7e75b195db6a6b2be22da8 # v4.6.2
+        with:
+          name: npm-${{ matrix.name }}
+          path: ${{ matrix.path }}/tgz-output/*.tgz
+          retention-days: 30
+
   publish-nuget:
     if: ${{ github.event_name == 'release' || github.event.inputs.package == 'agent-governance-dotnet' || github.event.inputs.package == 'all' }}
     runs-on: ubuntu-latest
