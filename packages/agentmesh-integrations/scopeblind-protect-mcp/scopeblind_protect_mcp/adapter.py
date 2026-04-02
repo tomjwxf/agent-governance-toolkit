@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import threading
 import time
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
@@ -109,6 +110,7 @@ class CedarPolicyBridge:
         self.deny_penalty = deny_penalty
         self.require_receipt = require_receipt
         self._history: List[Dict[str, Any]] = []
+        self._history_lock = threading.Lock()
 
     def evaluate(
         self,
@@ -139,7 +141,8 @@ class CedarPolicyBridge:
             result["allowed"] = False
             result["reason"] = "Decision receipt required but not provided"
             result["adjusted_trust"] = max(0, agent_trust_score - self.deny_penalty)
-            self._history.append(result)
+            with self._history_lock:
+                self._history.append(result)
             return result
 
         # Cedar deny is authoritative — not overridable by trust score
@@ -150,7 +153,8 @@ class CedarPolicyBridge:
                 f"(policies: {cedar_decision.policy_ids})"
             )
             result["adjusted_trust"] = max(0, agent_trust_score - self.deny_penalty)
-            self._history.append(result)
+            with self._history_lock:
+                self._history.append(result)
             return result
 
         # Cedar allow — layer AGT trust check
@@ -161,7 +165,8 @@ class CedarPolicyBridge:
                 f"Cedar allowed but trust score {adjusted} below floor {self.trust_floor}"
             )
             result["adjusted_trust"] = adjusted
-            self._history.append(result)
+            with self._history_lock:
+                self._history.append(result)
             return result
 
         result["allowed"] = True
@@ -169,22 +174,25 @@ class CedarPolicyBridge:
         result["adjusted_trust"] = adjusted
 
         if receipt:
-            result["receipt_hash"] = hashlib.sha256(
+            result["receipt_ref"] = hashlib.sha256(
                 json.dumps(receipt, sort_keys=True).encode()
-            ).hexdigest()[:16]
+            ).hexdigest()
 
-        self._history.append(result)
+        with self._history_lock:
+            self._history.append(result)
         return result
 
     def get_history(self) -> List[Dict[str, Any]]:
-        return list(self._history)
+        with self._history_lock:
+            return list(self._history)
 
     def get_stats(self) -> Dict[str, Any]:
-        total = len(self._history)
-        allowed = sum(1 for r in self._history if r.get("allowed"))
-        cedar_denies = sum(
-            1 for r in self._history if r.get("cedar_effect") == "deny"
-        )
+        with self._history_lock:
+            total = len(self._history)
+            allowed = sum(1 for r in self._history if r.get("allowed"))
+            cedar_denies = sum(
+                1 for r in self._history if r.get("cedar_effect") == "deny"
+            )
         return {
             "total_evaluations": total,
             "allowed": allowed,
@@ -231,10 +239,16 @@ class ReceiptVerifier:
     def __init__(self, strict: bool = True):
         self.strict = strict
         self._verified: List[Dict[str, Any]] = []
+        self._verified_lock = threading.Lock()
 
-    def validate_structure(self, receipt: Dict[str, Any]) -> Dict[str, Any]:
+    def validate_structure_only(self, receipt: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Validate receipt structure (not cryptographic signature).
+        Validate receipt structure only — no cryptographic verification.
+
+        Cryptographic signature verification (Ed25519) is delegated to
+        @veritasacta/verify or the protect-mcp runtime. This method only
+        checks that required fields are present and the receipt type is
+        recognized.
 
         Returns a result dict with:
         - valid: bool
@@ -280,12 +294,13 @@ class ReceiptVerifier:
             result["utilization_band"] = payload.get("utilization_band")
             result["category"] = payload.get("category")
 
-        self._verified.append(result)
+        with self._verified_lock:
+            self._verified.append(result)
         return result
 
     def to_agt_context(self, receipt: Dict[str, Any]) -> Dict[str, Any]:
         """Convert a validated receipt to AGT-compatible context."""
-        validation = self.validate_structure(receipt)
+        validation = self.validate_structure_only(receipt)
         if not validation.get("valid"):
             return {"receipt_valid": False, "reason": validation.get("reason", "")}
 
@@ -296,15 +311,16 @@ class ReceiptVerifier:
             "cedar_effect": validation.get("decision", ""),
             "tool": validation.get("tool", ""),
             "timestamp": validation.get("timestamp"),
-            "receipt_hash": hashlib.sha256(
+            "receipt_ref": hashlib.sha256(
                 json.dumps(receipt, sort_keys=True).encode()
-            ).hexdigest()[:16],
+            ).hexdigest(),
             "issuer_blind": True,  # protect-mcp receipts are always issuer-blind
             "payload_fields": sorted(payload.keys()),
         }
 
     def get_verification_log(self) -> List[Dict[str, Any]]:
-        return list(self._verified)
+        with self._verified_lock:
+            return list(self._verified)
 
 
 # ---------------------------------------------------------------------------
@@ -344,6 +360,7 @@ class SpendingGate:
         self.high_util_trust_floor = high_util_trust_floor
         self.blocked_categories = set(blocked_categories or [])
         self._decisions: List[Dict[str, Any]] = []
+        self._decisions_lock = threading.Lock()
 
     def evaluate_spend(
         self,
@@ -381,33 +398,38 @@ class SpendingGate:
                 f"Amount {amount} {currency} exceeds single-transaction "
                 f"limit of {self.max_single_amount} {currency}"
             )
-            self._decisions.append(result)
+            with self._decisions_lock:
+                self._decisions.append(result)
             return result
 
         if amount <= 0:
             result["allowed"] = False
             result["reason"] = "Amount must be positive"
-            self._decisions.append(result)
+            with self._decisions_lock:
+                self._decisions.append(result)
             return result
 
         # 2. Category check
         if category in self.blocked_categories:
             result["allowed"] = False
             result["reason"] = f"Category '{category}' is blocked"
-            self._decisions.append(result)
+            with self._decisions_lock:
+                self._decisions.append(result)
             return result
 
         # 3. Utilization + trust
         if utilization_band not in self.UTILIZATION_BANDS:
             result["allowed"] = False
             result["reason"] = f"Invalid utilization band: {utilization_band}"
-            self._decisions.append(result)
+            with self._decisions_lock:
+                self._decisions.append(result)
             return result
 
         if utilization_band == "exceeded":
             result["allowed"] = False
             result["reason"] = "Budget utilization exceeded"
-            self._decisions.append(result)
+            with self._decisions_lock:
+                self._decisions.append(result)
             return result
 
         if utilization_band == "high" and agent_trust_score < self.high_util_trust_floor:
@@ -416,7 +438,8 @@ class SpendingGate:
                 f"High utilization requires trust score >= {self.high_util_trust_floor} "
                 f"(current: {agent_trust_score})"
             )
-            self._decisions.append(result)
+            with self._decisions_lock:
+                self._decisions.append(result)
             return result
 
         # 4. Receipt check for high-value transactions
@@ -425,26 +448,30 @@ class SpendingGate:
             result["reason"] = (
                 f"Transactions above 1000 {currency} require a spending authority receipt"
             )
-            self._decisions.append(result)
+            with self._decisions_lock:
+                self._decisions.append(result)
             return result
 
         result["allowed"] = True
         result["reason"] = "Spending authorized"
         if receipt:
-            result["receipt_hash"] = hashlib.sha256(
+            result["receipt_ref"] = hashlib.sha256(
                 json.dumps(receipt, sort_keys=True).encode()
-            ).hexdigest()[:16]
+            ).hexdigest()
 
-        self._decisions.append(result)
+        with self._decisions_lock:
+            self._decisions.append(result)
         return result
 
     def get_decisions(self) -> List[Dict[str, Any]]:
-        return list(self._decisions)
+        with self._decisions_lock:
+            return list(self._decisions)
 
     def get_stats(self) -> Dict[str, Any]:
-        total = len(self._decisions)
-        allowed = sum(1 for d in self._decisions if d.get("allowed"))
-        total_amount = sum(d.get("amount", 0) for d in self._decisions if d.get("allowed"))
+        with self._decisions_lock:
+            total = len(self._decisions)
+            allowed = sum(1 for d in self._decisions if d.get("allowed"))
+            total_amount = sum(d.get("amount", 0) for d in self._decisions if d.get("allowed"))
         return {
             "total_requests": total,
             "allowed": allowed,

@@ -98,7 +98,7 @@ receipt = {
     "publicKey": "base64_ed25519_public_key",
 }
 
-result = verifier.validate_structure(receipt)
+result = verifier.validate_structure_only(receipt)
 assert result["valid"]
 
 # Convert to AGT context

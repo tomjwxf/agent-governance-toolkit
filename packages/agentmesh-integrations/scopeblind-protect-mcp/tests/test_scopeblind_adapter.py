@@ -140,7 +140,7 @@ class TestCedarPolicyBridge:
         receipt = make_receipt()
         result = bridge.evaluate(decision, agent_trust_score=500, receipt=receipt)
         assert result["allowed"] is True
-        assert "receipt_hash" in result
+        assert "receipt_ref" in result
 
     def test_stats_tracking(self):
         bridge = CedarPolicyBridge()
@@ -168,13 +168,13 @@ class TestReceiptVerifier:
     def test_valid_receipt(self):
         verifier = ReceiptVerifier()
         receipt = make_receipt()
-        result = verifier.validate_structure(receipt)
+        result = verifier.validate_structure_only(receipt)
         assert result["valid"] is True
         assert result["receipt_type"] == "scopeblind:decision"
 
     def test_missing_fields(self):
         verifier = ReceiptVerifier()
-        result = verifier.validate_structure({"type": "scopeblind:decision"})
+        result = verifier.validate_structure_only({"type": "scopeblind:decision"})
         assert result["valid"] is False
         assert "Missing required fields" in result["reason"]
 
@@ -182,20 +182,20 @@ class TestReceiptVerifier:
         verifier = ReceiptVerifier(strict=True)
         receipt = make_receipt()
         receipt["type"] = "unknown:type"
-        result = verifier.validate_structure(receipt)
+        result = verifier.validate_structure_only(receipt)
         assert result["valid"] is False
 
     def test_unknown_type_lenient(self):
         verifier = ReceiptVerifier(strict=False)
         receipt = make_receipt()
         receipt["type"] = "custom:type"
-        result = verifier.validate_structure(receipt)
+        result = verifier.validate_structure_only(receipt)
         assert result["valid"] is True
 
     def test_spending_authority_receipt(self):
         verifier = ReceiptVerifier()
         receipt = make_spending_receipt(amount=250.0, category="cloud_compute", band="medium")
-        result = verifier.validate_structure(receipt)
+        result = verifier.validate_structure_only(receipt)
         assert result["valid"] is True
         assert result["amount"] == 250.0
         assert result["utilization_band"] == "medium"
@@ -207,7 +207,7 @@ class TestReceiptVerifier:
         assert ctx["receipt_valid"] is True
         assert ctx["issuer_blind"] is True
         assert ctx["cedar_effect"] == "allow"
-        assert "receipt_hash" in ctx
+        assert "receipt_ref" in ctx
 
     def test_invalid_receipt_agt_context(self):
         verifier = ReceiptVerifier()
@@ -329,3 +329,218 @@ class TestScopeblindContext:
         assert "receipt" in ctx
         assert "spending" in ctx
         assert ctx["receipt"]["present"] is True
+
+
+# ---- Edge case tests ----
+
+
+class TestEdgeCases:
+    """Edge cases covering missing/invalid fields, boundary trust scores,
+    concurrent access, and malformed payloads."""
+
+    # -- Receipts with missing or invalid fields --
+
+    def test_receipt_empty_dict(self):
+        verifier = ReceiptVerifier()
+        result = verifier.validate_structure_only({})
+        assert result["valid"] is False
+        assert "Missing required fields" in result["reason"]
+
+    def test_receipt_missing_signature(self):
+        verifier = ReceiptVerifier()
+        receipt = {"type": "scopeblind:decision", "payload": {}, "publicKey": "pk"}
+        result = verifier.validate_structure_only(receipt)
+        assert result["valid"] is False
+        assert "signature" in str(result["reason"])
+
+    def test_receipt_missing_public_key(self):
+        verifier = ReceiptVerifier()
+        receipt = {"type": "scopeblind:decision", "payload": {}, "signature": "sig"}
+        result = verifier.validate_structure_only(receipt)
+        assert result["valid"] is False
+        assert "publicKey" in str(result["reason"])
+
+    def test_receipt_payload_not_dict(self):
+        verifier = ReceiptVerifier()
+        receipt = {
+            "type": "scopeblind:decision",
+            "payload": "not_a_dict",
+            "signature": "sig",
+            "publicKey": "pk",
+        }
+        result = verifier.validate_structure_only(receipt)
+        assert result["valid"] is False
+        assert "object" in result["reason"].lower()
+
+    def test_receipt_payload_is_list(self):
+        verifier = ReceiptVerifier()
+        receipt = {
+            "type": "scopeblind:decision",
+            "payload": [1, 2, 3],
+            "signature": "sig",
+            "publicKey": "pk",
+        }
+        result = verifier.validate_structure_only(receipt)
+        assert result["valid"] is False
+
+    def test_receipt_null_signature(self):
+        """Signature present but empty string — should still pass structure check."""
+        verifier = ReceiptVerifier()
+        receipt = {
+            "type": "scopeblind:decision",
+            "payload": {"effect": "allow", "tool": "test"},
+            "signature": "",
+            "publicKey": "pk",
+        }
+        result = verifier.validate_structure_only(receipt)
+        assert result["valid"] is True
+        assert result["has_signature"] is False
+
+    def test_to_agt_context_malformed_receipt(self):
+        verifier = ReceiptVerifier()
+        ctx = verifier.to_agt_context({"type": "bad"})
+        assert ctx["receipt_valid"] is False
+
+    # -- Trust scores at boundaries --
+
+    def test_trust_score_zero(self):
+        bridge = CedarPolicyBridge(trust_floor=0)
+        decision = CedarDecision(effect="allow", tool_name="read_file")
+        result = bridge.evaluate(decision, agent_trust_score=0)
+        assert result["allowed"] is True
+        assert result["adjusted_trust"] == 50  # default bonus
+
+    def test_trust_score_1000(self):
+        bridge = CedarPolicyBridge(trust_bonus_per_allow=50)
+        decision = CedarDecision(effect="allow", tool_name="read_file")
+        result = bridge.evaluate(decision, agent_trust_score=1000)
+        assert result["adjusted_trust"] == 1000  # capped
+
+    def test_trust_score_zero_with_deny(self):
+        bridge = CedarPolicyBridge(deny_penalty=100)
+        decision = CedarDecision(effect="deny", tool_name="shell_exec")
+        result = bridge.evaluate(decision, agent_trust_score=0)
+        assert result["adjusted_trust"] == 0  # clamped, no negative
+
+    def test_trust_score_at_floor_boundary(self):
+        """Trust score exactly at floor should pass."""
+        bridge = CedarPolicyBridge(trust_floor=550, trust_bonus_per_allow=50)
+        decision = CedarDecision(effect="allow", tool_name="read_file")
+        result = bridge.evaluate(decision, agent_trust_score=500)
+        assert result["adjusted_trust"] == 550
+        assert result["allowed"] is True
+
+    def test_trust_score_one_below_floor(self):
+        """Trust score one below floor should deny."""
+        bridge = CedarPolicyBridge(trust_floor=551, trust_bonus_per_allow=50)
+        decision = CedarDecision(effect="allow", tool_name="read_file")
+        result = bridge.evaluate(decision, agent_trust_score=500)
+        assert result["adjusted_trust"] == 550
+        assert result["allowed"] is False
+
+    # -- Concurrent evaluations (thread safety) --
+
+    def test_concurrent_bridge_evaluations(self):
+        """Multiple threads appending to bridge history should not lose entries."""
+        import threading
+
+        bridge = CedarPolicyBridge()
+        decision = CedarDecision(effect="allow", tool_name="read_file")
+        n_threads = 10
+        n_per_thread = 50
+        barrier = threading.Barrier(n_threads)
+
+        def worker():
+            barrier.wait()
+            for _ in range(n_per_thread):
+                bridge.evaluate(decision, agent_trust_score=500)
+
+        threads = [threading.Thread(target=worker) for _ in range(n_threads)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+        assert len(bridge.get_history()) == n_threads * n_per_thread
+
+    def test_concurrent_receipt_verification(self):
+        """Multiple threads validating receipts should not lose entries."""
+        import threading
+
+        verifier = ReceiptVerifier()
+        receipt = make_receipt()
+        n_threads = 10
+        n_per_thread = 50
+        barrier = threading.Barrier(n_threads)
+
+        def worker():
+            barrier.wait()
+            for _ in range(n_per_thread):
+                verifier.validate_structure_only(receipt)
+
+        threads = [threading.Thread(target=worker) for _ in range(n_threads)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+        assert len(verifier.get_verification_log()) == n_threads * n_per_thread
+
+    def test_concurrent_spending_decisions(self):
+        """Multiple threads evaluating spends should not lose entries."""
+        import threading
+
+        gate = SpendingGate()
+        n_threads = 10
+        n_per_thread = 50
+        barrier = threading.Barrier(n_threads)
+
+        def worker():
+            barrier.wait()
+            for _ in range(n_per_thread):
+                gate.evaluate_spend(amount=10.0, agent_trust_score=500)
+
+        threads = [threading.Thread(target=worker) for _ in range(n_threads)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+        assert len(gate.get_decisions()) == n_threads * n_per_thread
+
+    # -- Malformed receipt payloads --
+
+    def test_cedar_decision_from_receipt_missing_payload(self):
+        """from_receipt with no payload key should use top-level dict."""
+        d = CedarDecision.from_receipt({"effect": "deny", "tool": "bash"})
+        assert d.effect == "deny"
+        assert d.tool_name == "bash"
+
+    def test_cedar_decision_from_receipt_empty(self):
+        """from_receipt with empty dict should default to deny."""
+        d = CedarDecision.from_receipt({})
+        assert d.effect == "deny"
+        assert d.tool_name == ""
+
+    def test_spending_gate_zero_amount(self):
+        gate = SpendingGate()
+        result = gate.evaluate_spend(amount=0.0, agent_trust_score=500)
+        assert result["allowed"] is False
+        assert "positive" in result["reason"].lower()
+
+    def test_spending_gate_invalid_utilization_band(self):
+        gate = SpendingGate()
+        result = gate.evaluate_spend(
+            amount=10.0, utilization_band="invalid_band", agent_trust_score=500
+        )
+        assert result["allowed"] is False
+        assert "invalid utilization band" in result["reason"].lower()
+
+    def test_receipt_ref_is_full_sha256(self):
+        """receipt_ref should be a full 64-char hex SHA-256, not truncated."""
+        bridge = CedarPolicyBridge()
+        decision = CedarDecision(effect="allow", tool_name="web_search")
+        receipt = make_receipt()
+        result = bridge.evaluate(decision, agent_trust_score=500, receipt=receipt)
+        assert "receipt_ref" in result
+        assert len(result["receipt_ref"]) == 64  # full SHA-256 hex
