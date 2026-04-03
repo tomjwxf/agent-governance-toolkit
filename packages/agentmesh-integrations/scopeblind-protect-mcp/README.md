@@ -11,7 +11,7 @@ protect-mcp is a security gateway that wraps any MCP server with:
 - **Issuer-blind verification** (verifier can confirm receipt validity without learning who issued it)
 - **Spending authority** (prove an agent's purchase is authorized without revealing org details)
 
-Published on npm: `npx protect-mcp@latest` | [GitHub](https://github.com/scopeblind/scopeblind-gateway) | [Docs](https://scopeblind.com/docs/protect-mcp)
+Published on npm: `npx protect-mcp@latest` | [GitHub](https://github.com/ScopeBlind/scopeblind-gateway) | [Docs](https://scopeblind.com/docs/protect-mcp)
 
 ## How it complements AGT
 

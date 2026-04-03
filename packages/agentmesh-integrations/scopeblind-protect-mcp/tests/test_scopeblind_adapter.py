@@ -383,8 +383,8 @@ class TestEdgeCases:
         result = verifier.validate_structure_only(receipt)
         assert result["valid"] is False
 
-    def test_receipt_null_signature(self):
-        """Signature present but empty string — should still pass structure check."""
+    def test_receipt_empty_signature_rejected(self):
+        """Empty signature string should be rejected as invalid."""
         verifier = ReceiptVerifier()
         receipt = {
             "type": "scopeblind:decision",
@@ -393,7 +393,7 @@ class TestEdgeCases:
             "publicKey": "pk",
         }
         result = verifier.validate_structure_only(receipt)
-        assert result["valid"] is True
+        assert result["valid"] is False
         assert result["has_signature"] is False
 
     def test_to_agt_context_malformed_receipt(self):

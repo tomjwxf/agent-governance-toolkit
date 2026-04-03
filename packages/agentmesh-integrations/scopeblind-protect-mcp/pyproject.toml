@@ -10,6 +10,7 @@ readme = "README.md"
 license = "MIT"
 requires-python = ">=3.9"
 authors = [
+    { name = "Tom Farley" },
     { name = "ScopeBlind Pty Ltd" }
 ]
 keywords = ["mcp", "cedar", "policy", "receipts", "agentmesh", "scopeblind", "trust"]

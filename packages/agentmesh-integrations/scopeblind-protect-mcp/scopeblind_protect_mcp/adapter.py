@@ -98,17 +98,21 @@ class CedarPolicyBridge:
     behavioral trust on top.
     """
 
+    MAX_HISTORY = 10000  # Prevent unbounded memory growth
+
     def __init__(
         self,
         trust_floor: int = 0,
         trust_bonus_per_allow: int = 50,
         deny_penalty: int = 200,
         require_receipt: bool = False,
+        max_history: int = MAX_HISTORY,
     ):
         self.trust_floor = trust_floor
         self.trust_bonus = trust_bonus_per_allow
         self.deny_penalty = deny_penalty
         self.require_receipt = require_receipt
+        self._max_history = max_history
         self._history: List[Dict[str, Any]] = []
         self._history_lock = threading.Lock()
 
@@ -141,8 +145,7 @@ class CedarPolicyBridge:
             result["allowed"] = False
             result["reason"] = "Decision receipt required but not provided"
             result["adjusted_trust"] = max(0, agent_trust_score - self.deny_penalty)
-            with self._history_lock:
-                self._history.append(result)
+            self._record(result)
             return result
 
         # Cedar deny is authoritative — not overridable by trust score
@@ -153,8 +156,7 @@ class CedarPolicyBridge:
                 f"(policies: {cedar_decision.policy_ids})"
             )
             result["adjusted_trust"] = max(0, agent_trust_score - self.deny_penalty)
-            with self._history_lock:
-                self._history.append(result)
+            self._record(result)
             return result
 
         # Cedar allow — layer AGT trust check
@@ -165,8 +167,7 @@ class CedarPolicyBridge:
                 f"Cedar allowed but trust score {adjusted} below floor {self.trust_floor}"
             )
             result["adjusted_trust"] = adjusted
-            with self._history_lock:
-                self._history.append(result)
+            self._record(result)
             return result
 
         result["allowed"] = True
@@ -181,6 +182,13 @@ class CedarPolicyBridge:
         with self._history_lock:
             self._history.append(result)
         return result
+
+    def _record(self, entry: Dict[str, Any]) -> None:
+        """Append to history with bounded size to prevent memory leaks."""
+        with self._history_lock:
+            self._history.append(entry)
+            if len(self._history) > self._max_history:
+                self._history = self._history[-self._max_history:]
 
     def get_history(self) -> List[Dict[str, Any]]:
         with self._history_lock:
@@ -236,8 +244,11 @@ class ReceiptVerifier:
         "acta:artifact",
     }
 
-    def __init__(self, strict: bool = True):
+    MAX_LOG = 10000  # Prevent unbounded memory growth
+
+    def __init__(self, strict: bool = True, max_log: int = MAX_LOG):
         self.strict = strict
+        self._max_log = max_log
         self._verified: List[Dict[str, Any]] = []
         self._verified_lock = threading.Lock()
 
@@ -277,14 +288,26 @@ class ReceiptVerifier:
         if not isinstance(payload, dict):
             return {"valid": False, "reason": "Payload must be an object"}
 
+        # Empty signature/publicKey should not pass as valid
+        sig = receipt.get("signature", "")
+        pk = receipt.get("publicKey", "")
+        if not sig or not pk:
+            return {
+                "valid": False,
+                "reason": "Empty signature or publicKey (cryptographic fields must be non-empty)",
+                "receipt_type": receipt_type,
+                "has_signature": bool(sig),
+                "has_public_key": bool(pk),
+            }
+
         result = {
             "valid": True,
             "receipt_type": receipt_type,
             "tool": payload.get("tool", payload.get("resource", "")),
             "decision": payload.get("effect", payload.get("decision", "")),
             "timestamp": payload.get("timestamp"),
-            "has_signature": bool(receipt.get("signature")),
-            "has_public_key": bool(receipt.get("publicKey")),
+            "has_signature": True,
+            "has_public_key": True,
         }
 
         # Spending authority specific fields
@@ -296,6 +319,8 @@ class ReceiptVerifier:
 
         with self._verified_lock:
             self._verified.append(result)
+            if len(self._verified) > self._max_log:
+                self._verified = self._verified[-self._max_log:]
         return result
 
     def to_agt_context(self, receipt: Dict[str, Any]) -> Dict[str, Any]:
@@ -350,15 +375,19 @@ class SpendingGate:
 
     UTILIZATION_BANDS = {"low", "medium", "high", "exceeded"}
 
+    MAX_LOG = 10000  # Prevent unbounded memory growth
+
     def __init__(
         self,
         max_single_amount: float = 10000.0,
         high_util_trust_floor: int = 500,
         blocked_categories: Optional[List[str]] = None,
+        max_log: int = MAX_LOG,
     ):
         self.max_single_amount = max_single_amount
         self.high_util_trust_floor = high_util_trust_floor
         self.blocked_categories = set(blocked_categories or [])
+        self._max_log = max_log
         self._decisions: List[Dict[str, Any]] = []
         self._decisions_lock = threading.Lock()
 
@@ -398,38 +427,33 @@ class SpendingGate:
                 f"Amount {amount} {currency} exceeds single-transaction "
                 f"limit of {self.max_single_amount} {currency}"
             )
-            with self._decisions_lock:
-                self._decisions.append(result)
+            self._record(result)
             return result
 
         if amount <= 0:
             result["allowed"] = False
             result["reason"] = "Amount must be positive"
-            with self._decisions_lock:
-                self._decisions.append(result)
+            self._record(result)
             return result
 
         # 2. Category check
         if category in self.blocked_categories:
             result["allowed"] = False
             result["reason"] = f"Category '{category}' is blocked"
-            with self._decisions_lock:
-                self._decisions.append(result)
+            self._record(result)
             return result
 
         # 3. Utilization + trust
         if utilization_band not in self.UTILIZATION_BANDS:
             result["allowed"] = False
             result["reason"] = f"Invalid utilization band: {utilization_band}"
-            with self._decisions_lock:
-                self._decisions.append(result)
+            self._record(result)
             return result
 
         if utilization_band == "exceeded":
             result["allowed"] = False
             result["reason"] = "Budget utilization exceeded"
-            with self._decisions_lock:
-                self._decisions.append(result)
+            self._record(result)
             return result
 
         if utilization_band == "high" and agent_trust_score < self.high_util_trust_floor:
@@ -438,8 +462,7 @@ class SpendingGate:
                 f"High utilization requires trust score >= {self.high_util_trust_floor} "
                 f"(current: {agent_trust_score})"
             )
-            with self._decisions_lock:
-                self._decisions.append(result)
+            self._record(result)
             return result
 
         # 4. Receipt check for high-value transactions
@@ -448,8 +471,7 @@ class SpendingGate:
             result["reason"] = (
                 f"Transactions above 1000 {currency} require a spending authority receipt"
             )
-            with self._decisions_lock:
-                self._decisions.append(result)
+            self._record(result)
             return result
 
         result["allowed"] = True
@@ -462,6 +484,13 @@ class SpendingGate:
         with self._decisions_lock:
             self._decisions.append(result)
         return result
+
+    def _record(self, entry: Dict[str, Any]) -> None:
+        """Append to decisions with bounded size to prevent memory leaks."""
+        with self._decisions_lock:
+            self._decisions.append(entry)
+            if len(self._decisions) > self._max_log:
+                self._decisions = self._decisions[-self._max_log:]
 
     def get_decisions(self) -> List[Dict[str, Any]]:
         with self._decisions_lock:
@@ -509,7 +538,7 @@ def scopeblind_context(
     """
     ctx: Dict[str, Any] = {
         "source": "scopeblind:protect-mcp",
-        "version": "0.4.6",
+        "version": "0.5.2",
     }
 
     if cedar_decision is not None:
