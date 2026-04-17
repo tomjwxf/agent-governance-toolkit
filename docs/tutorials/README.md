@@ -85,6 +85,7 @@ guides.
 | 25 | [Security Hardening](25-security-hardening.md) | Gitleaks, Dependabot, CodeQL, fuzzing, Scorecard, branch protection | `agent-governance-toolkit` |
 | 26 | [SBOM & Signing](26-sbom-and-signing.md) | SPDX/CycloneDX SBOMs, Ed25519 artifact signing, attestation | `agent-compliance` |
 | 27 | [MCP Scan CLI](27-mcp-scan-cli.md) | MCP tool scanning, rug-pull detection, CI integration | `agent-os-kernel` |
+| 33 | [Offline-Verifiable Decision Receipts](33-offline-verifiable-receipts.md) | Ed25519 + JCS receipts, hash-chained, externally verifiable per tool call | `protect-mcp` / `agent-governance-toolkit` |
 
 ---
 
@@ -151,7 +152,8 @@ A self-contained sub-series progressing from basic allow/deny rules to productio
 3. [18 — Compliance Verification](18-compliance-verification.md) → regulatory grading
 4. [13 — Observability & Tracing](13-observability-and-tracing.md) → distributed tracing
 5. [26 — SBOM & Signing](26-sbom-and-signing.md) → supply chain security
-6. [31 — Entra Agent ID Bridge](31-entra-agent-id-bridge.md) → enterprise identity with Entra / Agent365
+6. [33 — Offline-Verifiable Decision Receipts](33-offline-verifiable-receipts.md) → external accountability for each decision
+7. [31 — Entra Agent ID Bridge](31-entra-agent-id-bridge.md) → enterprise identity with Entra / Agent365
 
 ### 🤖 "I'm building multi-agent systems"
 
