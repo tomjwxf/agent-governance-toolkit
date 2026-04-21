@@ -16,7 +16,7 @@
 > [Open a GitHub issue](https://github.com/microsoft/agent-governance-toolkit/issues) for feedback.
 
 > [!TIP]
-> **v3.1.0 is out!** Unified `agt` CLI, governance dashboard, quantum-safe crypto, agent lifecycle management, and shadow AI discovery. [Release notes →](RELEASE_NOTES_v3.1.0.md) · [Changelog →](CHANGELOG.md)
+> **v3.1.1 is out!** E2E encrypted agent messaging (Signal protocol), BinSkim security analysis, 106 code scanning alerts resolved, and GitHub Pages docs site. [Release notes →](RELEASE_NOTES_v3.1.1.md) · [Changelog →](CHANGELOG.md)
 
 **Runtime governance for AI agents** — deterministic policy enforcement, zero-trust identity, execution sandboxing, and SRE for autonomous agents. Covers all **10 OWASP Agentic risks** with **9,500+ tests**.
 
@@ -143,6 +143,7 @@ result := client.ExecuteWithGovernance("data.read", nil)
 </details>
 
 > **Full walkthrough:** [QUICKSTART.md](QUICKSTART.md) — zero to governed agents in 10 minutes with YAML policies, OPA/Rego, and Cedar support.
+> 🌍 Also available in: [日本語](QUICKSTART.ja.md) | [简体中文](QUICKSTART.zh-CN.md)
 
 ---
 
